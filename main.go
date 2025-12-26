@@ -1967,6 +1967,50 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
         .floating-btn:hover {
             background-color: #0056b3;
         }
+		/* 加载弹窗样式 */  
+.loading-popup {  
+    display: none;  
+    position: fixed;  
+    top: 0;  
+    left: 0;  
+    width: 100%;  
+    height: 100%;  
+    background-color: rgba(0, 0, 0, 0.5);  
+    backdrop-filter: blur(5px);  
+    z-index: 9999;  
+    justify-content: center;  
+    align-items: center;  
+}  
+  
+.loading-content {  
+    background: white;  
+    border-radius: 12px;  
+    padding: 30px;  
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);  
+    text-align: center;  
+    min-width: 200px;  
+}  
+  
+.loading-spinner {  
+    width: 40px;  
+    height: 40px;  
+    border: 4px solid #f3f3f3;  
+    border-top: 4px solid #007bff;  
+    border-radius: 50%;  
+    animation: spin 1s linear infinite;  
+    margin: 0 auto 15px;  
+}  
+  
+.loading-text {  
+    font-size: 16px;  
+    color: #333;  
+    font-weight: 500;  
+}  
+  
+@keyframes spin {  
+    0% { transform: rotate(0deg); }  
+    100% { transform: rotate(360deg); }  
+}
 		</style>
 		<script>
 			function searchTable() {
@@ -2105,12 +2149,14 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
 
 			function deleteRow(shortcode) {
 				if (confirm("确定要删除此项吗？")) {
+					showLoading();
 					var xhr = new XMLHttpRequest();
 					xhr.open("POST", "/admin?mode=delete", true);
 					xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 					xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 					xhr.send("shortcode=" + encodeURIComponent(shortcode));
 					xhr.onload = function() {
+						hideLoading();
 						if (xhr.status === 200) {
 						   if (xhr.responseText.includes('删除成功')) {
 						      alert('删除成功');
@@ -2120,6 +2166,10 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
 							location.reload();
 						}
 					};
+					xhr.onerror = function() {  
+            			hideLoading(); // 隐藏加载弹窗  
+            			alert('网络错误，删除失败');  
+        			};
 				}
 			}
 
@@ -2207,12 +2257,15 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
 				data.last_update = new Date().toISOString().replace('T', ' ').slice(0, -5);
 			}
 
+			showLoading();
+
 			var xhr = new XMLHttpRequest();
 			xhr.open("POST", "/admin?mode=edit", true);
 			xhr.setRequestHeader("Content-Type", "application/json");
 			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			xhr.send(JSON.stringify(data));
 			xhr.onload = function() {
+				hideLoading();
 				if (xhr.status === 200) {
 				   if (xhr.responseText.includes('修改成功')) {
 				      alert('修改成功');
@@ -2222,6 +2275,10 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
 					location.reload();
 				}
 			};
+			xhr.onerror = function() {  
+        		hideLoading(); // 隐藏加载弹窗  
+        		alert('网络错误，修改失败');  
+    		};
 		}
 
 		function cancelEdit(row) {
@@ -2311,6 +2368,15 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
     		// 重新应用分页  
     		updateTablePagination();  
 		}
+		function showLoading() {  
+    var popup = document.getElementById("loadingPopup");  
+    popup.style.display = "flex";  
+}  
+  
+function hideLoading() {  
+    var popup = document.getElementById("loadingPopup");  
+    popup.style.display = "none";  
+}
 		</script>
 	</head>
 	<body>
@@ -2387,7 +2453,14 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
         <div class="log-footer">
             <button onclick="clearLog()">清空日志</button>
         </div>
-    </div>     
+    </div>   
+	<!-- 加载弹窗 -->  
+<div id="loadingPopup" class="loading-popup">  
+    <div class="loading-content">  
+        <div class="loading-spinner"></div>  
+        <div class="loading-text">处理中...</div>  
+    </div>  
+</div>
 		<br><br><br>
 	</body>
 	</html>
