@@ -1473,7 +1473,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 						<div id="error-message" class="error-message">账户或密码错误</div>
 						<form method="post" id="login-form">
 							<label>用户名: <input type="text" name="username" /></label>
-							<label>密码: <input type="password" name="password" /></label>
+							<label>密码: <input type="password" name="password" id="password-input" onfocus="this.type='text'" onblur="this.type='password'" /></label>
 							<input type="submit" value="登录" />
 						</form>
 					</div>
@@ -1561,7 +1561,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 					<h1>登录</h1>
 					<form method="post">
 						<label>用户名: <input type="text" name="username" /></label>
-						<label>密码: <input type="password" name="password" /></label>
+						<label>密码: <input type="password" name="password" id="password-input" onfocus="this.type='text'" onblur="this.type='password'" /></label>
 						<input type="submit" value="登录" />
 					</form>
 				</div>
