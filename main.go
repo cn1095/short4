@@ -2443,6 +2443,10 @@ td:first-child {
     			if (selectAllCheckbox) {  
         			selectAllCheckbox.checked = false;  
     			}
+				// 检查当前页选中状态  
+    			if (multiSelectMode) {  
+        			updateSelectAllCheckbox();  
+    			}
 			}
 
 			function isTextTruncated(element) {  
@@ -2884,7 +2888,29 @@ function updateDeleteButton() {
 		deleteBtn.disabled = true;
 		deselectAllPagesBtn.disabled = true;
 	}  
-}  
+}
+
+// 检查当前页是否全选并更新表头复选框  
+function updateSelectAllCheckbox() {  
+    var currentPageCheckboxes = document.querySelectorAll("#dataTable tbody tr:not([style*='display: none']) .row-checkbox");  
+    var selectAllCheckbox = document.getElementById("selectAllCheckbox");  
+      
+    var allChecked = true;  
+    var anyChecked = false;  
+      
+    currentPageCheckboxes.forEach(function(checkbox) {  
+        if (checkbox.style.display !== "none") {  
+            if (checkbox.checked) {  
+                anyChecked = true;  
+            } else {  
+                allChecked = false;  
+            }  
+        }  
+    });  
+      
+    // 只有当前页全部选中时才勾选表头复选框  
+    selectAllCheckbox.checked = allChecked && anyChecked;  
+}
   
 // 显示确认弹窗  
 function showConfirmModal(title, message, onConfirm) {  
@@ -3096,7 +3122,7 @@ function scrollToTop() {
 					<tr>
 						<td>  
 							<div class="checkbox-wrapper">  
-								<input type="checkbox" class="custom-checkbox row-checkbox" value="{{.ShortCode}}" onchange="updateDeleteButton()">  
+								<input type="checkbox" class="custom-checkbox row-checkbox" value="{{.ShortCode}}" onchange="updateDeleteButton(); updateSelectAllCheckbox()">  
 							</div>  
 						</td>
 						<td data-field="LongUrl" title="点击可展开完整内容">{{.LongUrl}}</td>
