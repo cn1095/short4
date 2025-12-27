@@ -2371,15 +2371,18 @@ td:nth-child(2) {
             if (isTextTruncated(cell)) {  
                 cell.classList.add('truncated');  
                 cell.title = '点击展开完整内容';  
-                cell.onclick = function() {  
+                // 确保点击事件不被覆盖  
+                cell.onclick = function(e) {  
+                    e.preventDefault();  
                     toggleLongUrl(this);  
                 };  
             } else {  
                 cell.classList.remove('truncated', 'expanded');  
                 cell.title = '';  
-                cell.onclick = null;  
+                cell.onclick = null; 
+				cell.style.cursor = 'default';
             }  
-        }, 50);  
+        }, 100);  
     });  
 }
 			window.onload = function() {
@@ -2830,8 +2833,25 @@ function deleteExpired() {
 			xhr.onload = function() {  
 				hideLoading();  
 				if (xhr.status === 200) {  
-					alert(xhr.responseText);  
-					location.reload();  
+					// 获取所有过期的行并移除  
+                    var rows = document.querySelectorAll("#dataTable tbody tr");  
+                    rows.forEach(function(row) {  
+                        var expirationCell = row.getElementsByTagName("td")[5];  
+                        if (expirationCell) {  
+                            var expirationText = expirationCell.innerText;  
+                            if (expirationText && expirationText !== "") {  
+                                var expirationTime = new Date(expirationText);  
+                                if (expirationTime < new Date()) {  
+                                    row.style.display = 'none';  
+                                    setTimeout(function() {  
+                                        row.remove();  
+                                    }, 100);  
+                                }  
+                            }  
+                        }  
+                    });  
+                    updateTablePagination();  
+                    alert(xhr.responseText);  
 				} else {  
 					alert("删除过期项目失败");  
 				}  
@@ -2853,9 +2873,11 @@ function deleteSelected() {
 	}  
 	  
 	var shortCodes = [];  
-	checkboxes.forEach(function(checkbox) {  
-		shortCodes.push(checkbox.value);  
-	});  
+    var rowsToRemove = [];  
+    checkboxes.forEach(function(checkbox) {  
+        shortCodes.push(checkbox.value);  
+        rowsToRemove.push(checkbox.closest('tr'));  
+    });  
 	  
 	showConfirmModal(  
 		"删除选中项目",  
@@ -2869,8 +2891,15 @@ function deleteSelected() {
 			xhr.onload = function() {  
 				hideLoading();  
 				if (xhr.status === 200) {  
-					alert(xhr.responseText);  
-					location.reload();  
+					// 移除选中的行  
+                    rowsToRemove.forEach(function(row) {  
+                        row.style.display = 'none';  
+                        setTimeout(function() {  
+                            row.remove();  
+                        }, 100);  
+                    });  
+                    updateTablePagination();  
+                    alert(xhr.responseText);  
 				} else {  
 					alert("批量删除失败");  
 				}  
