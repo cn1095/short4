@@ -2028,9 +2028,6 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
 						}
 					}
 				}
-				 // 搜索后重置到第一页并应用分页  
-    			currentPage = 1; 
-				updateTablePagination();
 			}
 
 			var pageSize = 5;
