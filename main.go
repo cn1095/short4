@@ -2007,10 +2007,10 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
 					}
 				}
 				if (filter === "") {
-					// 清空搜索时，恢复所有行显示并保持当前分页状态  
+					// 清空搜索时：先隐藏所有行，然后应用分页  
         			for (i = 1; i < tr.length; i++) {  
-            			tr[i].style.display = "";  
-        			}  
+            			tr[i].style.display = "none";  
+        			} 
         			// 保持当前页数和每页显示数量，重新应用分页  
         			updateTablePagination();  
 					return;
@@ -2028,6 +2028,8 @@ func renderAdminPage(w http.ResponseWriter, r *http.Request, data []ApiRequest) 
 						}
 					}
 				}
+				 // 搜索后重置到第一页并应用分页  
+    			currentPage = 1; 
 				updateTablePagination();
 			}
 
